@@ -26,11 +26,11 @@ def main() -> None:
     if screen == "welcome":
         welcome_screen()
     elif screen == "intake":
-        intake_screen()
+        #intake_screen()
     elif screen == "review":
-        review_screen()
+        #review_screen()
     elif screen == "complete":
-        complete_screen()
+        #complete_screen()
     else:
         st.error(f'Unknown Screen: {st.session_state.screen}') #flag if some screen is wrong and just redirect to welcome
         st.session_state.screen = "welcome"
