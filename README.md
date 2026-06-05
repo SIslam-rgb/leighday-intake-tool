@@ -41,6 +41,16 @@ Responses are saved to a [CSV file](https://docs.python.org/3/library/csv.html) 
 | NFR4 | The CSV output must be consistently formatted across sessions regardless of interviewer |
 | NFR5 | The application must be portable and runnable on Windows |
 
+### Tech Stack Outline
+- [Python 3](https://docs.python.org/3/) — core programming language
+- [csv](https://docs.python.org/3/library/csv.html) — local data storage in CSV format
+- [datetime](https://docs.python.org/3/library/datetime.html) — timestamp generation
+- [Streamlit](https://docs.streamlit.io/)
+
+### Code Design
+
+![class diagram](assets/class_diagram.png)
+
 
 
 
