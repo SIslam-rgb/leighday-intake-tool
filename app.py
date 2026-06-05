@@ -6,7 +6,7 @@ import streamlit as st
 from welcome_screen import welcome_screen
 from intake_screen import intake_screen
 from review_screen import review_screen
-#from complete_screen import complete_screen
+from complete_screen import complete_screen
 
 def init_state() -> None:
     """set deafult state values
@@ -35,8 +35,8 @@ def main() -> None:
         intake_screen()
     elif screen == "review":
         review_screen()
-    # elif screen == "complete":
-    #     complete_screen()
+    elif screen == "complete":
+        complete_screen()
     else:
         st.error(f'Unknown Screen: {st.session_state.screen}') #flag if some screen is wrong and just redirect to welcome
         st.session_state.screen = "welcome"
