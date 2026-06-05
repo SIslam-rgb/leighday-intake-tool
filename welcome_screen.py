@@ -17,18 +17,17 @@ def welcome_screen() -> None:
 
     st.divider()
 
-    #Ensure all fields answered
     if st.button("Begin Questionnaire"):
-        if not case_ref.strip():
+        if not validate_text(case_ref):
             st.error("Please enter a case reference number.")
-        elif not validate_text(associate_name.strip()):
-            st.error("Please enter the interviewing associates name.")
-        elif not validate_date(interview_date.strip()):
-            st.error("Please enter the interview date.")
+        elif not validate_text(associate_name):
+            st.error("Please enter the interviewing associate name.")
+        elif not validate_date(interview_date):
+            st.error("Please enter a valid date in DD/MM/YYYY format.")
         else:
-            st.session_state["case_ref"] = case_ref 
+            st.session_state["case_ref"] = case_ref
             st.session_state["associate_name"] = associate_name
             st.session_state["interview_date"] = interview_date
-            st.session_state["screen"] = "intake" #move to next screen
+            st.session_state["screen"] = "intake"
             st.rerun()
 
