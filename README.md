@@ -221,6 +221,14 @@ Click Submit to save the responses. You will then see a confirmation screen. Cli
 **Starting a new session**
 Click Start New Intake to reset the form and begin a new claimant interview.
 
+## Evaluation
+
+The development of this project went well in several respects. Structuring the application across multiple files with a single responsibility per file kept the codebase clean and made it straightforward to build and debug each component in isolation. Streamlit proved to be the right choice of framework - the ability to build a functional, multi-screen GUI in pure Python without writing any HTML or CSS saved significant development time. The decision to separate validation logic into pure functions in `validation.py` also paid off during testing, as each function could be tested independently without needing to run the full application.
+
+The test-driven development approach was particularly valuable. Writing tests before the functions were fully implemented meant bugs were caught early - the whitespace bug in `validate_text` and the missing positive check in `validate_numeric` were both identified through failing tests rather than discovered later during manual testing, most importantly, I realised during manual testing that text fields only validate that a response is non-empty, which means a lawyer could theoretically enter a number as a claimant name. I amended validate_text and reran the tests until the issue was resolved.
+
+There are several areas that could be improved with more time. The UI styling does not fully match the Figma mockup - Streamlit's default dark theme and CSS specificity issues made it difficult to apply consistent brand styling within the time available. A more robust implementation would use a stricter validation rule for name fields while remaining flexible enough to handle international name formats. Finally, CSV storage is appropriate for local field use but would not scale to a multi-user or networked deployment - migrating to a database such as SQLite or PostgreSQL would be the natural next step if the tool were rolled out firm-wide.
+
 ### Technical Documentation
 
 **Requirements**
