@@ -26,7 +26,9 @@ class Questionnaire:
 
     @property
     def questions(self) -> list:
-        """Return the list of questions."""
+        """
+        Return the list of questions.
+        """
         return self._questions
 
     def get_question(self, index: int) -> Question:
