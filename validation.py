@@ -4,4 +4,4 @@ def validate_text(value: str) -> bool:
     """
     Validate that a value is non-empty text.
     """
-    return len(value) > 0
+    return len(value.strip()) > 0
