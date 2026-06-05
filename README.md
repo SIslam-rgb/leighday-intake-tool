@@ -42,14 +42,108 @@ Responses are saved to a [CSV file](https://docs.python.org/3/library/csv.html) 
 | NFR5 | The application must be portable and runnable on Windows |
 
 ### Tech Stack Outline
-- [Python 3](https://docs.python.org/3/) — core programming language
-- [csv](https://docs.python.org/3/library/csv.html) — local data storage in CSV format
-- [datetime](https://docs.python.org/3/library/datetime.html) — timestamp generation
-- [Streamlit](https://docs.streamlit.io/)
+- [Python 3](https://docs.python.org/3/) - core programming language
+- [csv](https://docs.python.org/3/library/csv.html) - local data storage in CSV format
+- [datetime](https://docs.python.org/3/library/datetime.html) - timestamp generation
+- [Streamlit](https://docs.streamlit.io/) -To build interactive web app
 
 ### Code Design
 
 ![class diagram](assets/class_diagram.png)
+
+## Development
+## Development
+
+The application is structured across multiple files, each with a single responsibility. Screen navigation is handled through Streamlit's session state, which persists data between reruns. The data model is built using object-oriented programming principles, with validation logic separated into pure functions to support independent testing.
+
+### Project Structure
+
+```
+leigh-day-intake-tool/
+├── app.py                  ← main entry point and screen routing
+├── welcome_screen.py       ← screen 1
+├── intake_screen.py        ← screen 2
+├── review_screen.py        ← screen 3
+├── complete_screen.py      ← screen 4
+├── question.py             ← Question base class and subclasses
+├── questionnaire.py        ← Questionnaire class
+├── response.py             ← Response class
+├── datastore.py            ← DataStore class
+├── validation.py           ← pure validation functions
+├── test_validation.py      ← pytest unit tests
+└── assets/                 ← Figma design screenshots
+```
+
+### App Routing — app.py
+
+`app.py` is the main entry point. It initialises session state and routes the user to the correct screen based on the value of `st.session_state.screen`. Each screen is imported as a function from its own file, keeping the routing logic clean and separate from the UI logic.
+
+```python
+def main() -> None:
+
+    init_state() #call memory
+
+    #current user screen
+    screen = st.session_state.screen
+
+    #Check what screen user is on and route them accordingly
+    if screen == "welcome":
+        welcome_screen()
+    elif screen == "intake":
+        intake_screen()
+    elif screen == "review":
+        review_screen()
+    elif screen == "complete":
+        complete_screen()
+    else:
+        st.error(f'Unknown Screen: {st.session_state.screen}') #flag if some screen is wrong and just redirect to welcome
+        st.session_state.screen = "welcome"
+        st.rerun()
+```
+
+### OOP Design — models.py
+
+The application uses inheritance and polymorphism to model different question types. A base Question class defines shared attributes — label, field type, and whether the question is required. Four subclasses inherit from it and each define their own validate() method with type-specific logic. This means the intake screen can call question.validate(value) on any question regardless of its type, and the correct validation logic runs automatically.
+
+```python
+class NumericQuestion(Question):
+    """A question that expects a positive number response."""
+
+    def __init__(self, label: str, required: bool = True) -> None:
+        super().__init__(label, "numeric", required)
+
+    def validate(self, value: str) -> bool:
+        return validate_numeric(value)
+```
+
+### Pure Validation Functions — validation.py
+
+Validation logic is separated into pure functions in `validation.py`. Each function takes a string and returns a boolean - they can be tested independently with pytest without needing to run the full application.
+
+```python
+def validate_numeric(value: str) -> bool:
+    try:
+        return float(value.strip()) > 0
+    except ValueError:
+        return False
+```
+
+### Persistent Storage — datastore.py
+
+The `DataStore` class handles reading from and writing to `responses.csv`. On first submission it creates the file with headers. Subsequent submissions append new rows without repeating the headers. On the completion screen the file is read back and passed to Streamlit's download button for export.
+
+```python
+def save(self, response: Response) -> None:
+    try:
+        row = response.to_dict()
+        df_new = pd.DataFrame([row])
+        if os.path.exists(self._filepath):
+            df_new.to_csv(self._filepath, mode='a', header=False, index=False)
+        else:
+            df_new.to_csv(self._filepath, mode='w', header=True, index=False)
+    except Exception as e:
+        raise IOError(f"Failed to save response: {e}")
+```
 
 
 
