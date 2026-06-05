@@ -1,4 +1,6 @@
 import streamlit as st
+from validation import validate_date
+from validation import validate_text
 
 def welcome_screen() -> None:
     """
@@ -19,9 +21,9 @@ def welcome_screen() -> None:
     if st.button("Begin Questionnaire"):
         if not case_ref.strip():
             st.error("Please enter a case reference number.")
-        elif not associate_name.strip():
+        elif not validate_text(associate_name.strip()):
             st.error("Please enter the interviewing associates name.")
-        elif not interview_date.strip():
+        elif not validate_date(interview_date.strip()):
             st.error("Please enter the interview date.")
         else:
             st.session_state["case_ref"] = case_ref 
@@ -29,3 +31,4 @@ def welcome_screen() -> None:
             st.session_state["interview_date"] = interview_date
             st.session_state["screen"] = "intake" #move to next screen
             st.rerun()
+
