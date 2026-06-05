@@ -13,7 +13,7 @@ Responses are saved to a [CSV file](https://docs.python.org/3/library/csv.html) 
 
 ### GUI Design
 
-**Figure 1: ** Show the high-fidelity mockup that was produced in Figma prior to development. It reflect Leigh Day's black, white, and grey brand identity and was designed to show the intended user journey from entry of case details upon start of interview through to data export. The hi-fi mockup was used to plan the screen layout, validation points and navigate flow before implementation. It both represnets the final visual appearance of the application as well as structure, sequence and user interaction.
+**Figure 1:** Show the high-fidelity mockup that was produced in Figma prior to development. It reflect Leigh Day's black, white, and grey brand identity and was designed to show the intended user journey from entry of case details upon start of interview through to data export. The hi-fi mockup was used to plan the screen layout, validation points and navigate flow before implementation. It both represnets the final visual appearance of the application as well as structure, sequence and user interaction.
 
 ![Figure 1: Hi-Fi Mockup illustraing the user journey and screen flow of the Leigh Day Intake Tool](assets/design_overview.png)
 
