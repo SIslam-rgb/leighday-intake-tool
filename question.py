@@ -63,4 +63,3 @@ class YesNoQuestion(Question):
 
     def validate(self, value: str) -> bool:
         return validate_yes_no(value)
-    
