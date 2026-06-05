@@ -1,8 +1,6 @@
 import streamlit as st
 from questionnaire import Questionnaire
 
-
-
 def intake_screen() -> None:
     """
     Render the intake form screen.
