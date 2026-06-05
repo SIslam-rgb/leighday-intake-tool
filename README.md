@@ -52,7 +52,6 @@ Responses are saved to a [CSV file](https://docs.python.org/3/library/csv.html) 
 ![class diagram](assets/class_diagram.png)
 
 ## Development
-## Development
 
 The application is structured across multiple files, each with a single responsibility. Screen navigation is handled through Streamlit's session state, which persists data between reruns. The data model is built using object-oriented programming principles, with validation logic separated into pure functions to support independent testing.
 
@@ -74,9 +73,9 @@ leigh-day-intake-tool/
 └── assets/                 ← Figma design screenshots
 ```
 
-### App Routing — app.py
+### App Routing - app.py
 
-`app.py` is the main entry point. It initialises session state and routes the user to the correct screen based on the value of `st.session_state.screen`. Each screen is imported as a function from its own file, keeping the routing logic clean and separate from the UI logic.
+`app.py` is the main entry point. It initialises session state and routes the user to the correct screen based on the value of `st.session_state.screen`. Each screen is imported as a function from its own file, keeping the routing logic clean and separate from the UI logic.Streamlit reruns the entire script on every user interaction. Session state is used to store data between these reruns storing the case reference, associate name, interview date and claimant answers so they survive navigation between screens.
 
 ```python
 def main() -> None:
@@ -101,9 +100,9 @@ def main() -> None:
         st.rerun()
 ```
 
-### OOP Design — models.py
+### OOP Design - question.py
 
-The application uses inheritance and polymorphism to model different question types. A base Question class defines shared attributes — label, field type, and whether the question is required. Four subclasses inherit from it and each define their own validate() method with type-specific logic. This means the intake screen can call question.validate(value) on any question regardless of its type, and the correct validation logic runs automatically.
+The application uses inheritance and polymorphism to model different question types. A base Question class defines shared attributes - label, field type, and whether the question is required. Four subclasses inherit from it and each define their own validate() method with type-specific logic. This means the intake screen can call question.validate(value) on any question regardless of its type, and the correct validation logic runs automatically.
 
 ```python
 class NumericQuestion(Question):
@@ -116,7 +115,7 @@ class NumericQuestion(Question):
         return validate_numeric(value)
 ```
 
-### Pure Validation Functions — validation.py
+### Pure Validation Functions - validation.py
 
 Validation logic is separated into pure functions in `validation.py`. Each function takes a string and returns a boolean - they can be tested independently with pytest without needing to run the full application.
 
@@ -127,24 +126,127 @@ def validate_numeric(value: str) -> bool:
     except ValueError:
         return False
 ```
+### Response - responses.py
+The Response class acts as a container for a single completed claimant session. It stores session metadata and claimant answers as separate private attributes, and automatically generates a timestamp on creation. The to_dict() method merges everything into one flat dictionary, which DataStore then writes as a single row in the CSV file.
 
-### Persistent Storage — datastore.py
+```python
+def to_dict(self) -> dict:
+        """
+        Convert the response to a flat dictionary for CSV export.Returns a flat dictionary combining metadata, answers and timestamp.
+        """
+        row = {}
+        row["timestamp"] = self._timestamp
+        row["case_ref"] = self._session_meta.get("case_ref", "")
+        row["associate_name"] = self._session_meta.get("associate_name", "")
+        row["interview_date"] = self._session_meta.get("interview_date", "")
+        row.update(self._answers)
+        return row
+```
+
+### Storage - datastore.py
 
 The `DataStore` class handles reading from and writing to `responses.csv`. On first submission it creates the file with headers. Subsequent submissions append new rows without repeating the headers. On the completion screen the file is read back and passed to Streamlit's download button for export.
 
 ```python
 def save(self, response: Response) -> None:
-    try:
-        row = response.to_dict()
-        df_new = pd.DataFrame([row])
-        if os.path.exists(self._filepath):
-            df_new.to_csv(self._filepath, mode='a', header=False, index=False)
-        else:
-            df_new.to_csv(self._filepath, mode='w', header=True, index=False)
-    except Exception as e:
-        raise IOError(f"Failed to save response: {e}")
+        """
+        Save a Response to the CSV file.
+        """
+        try:
+            row = response.to_dict()
+            df_new = pd.DataFrame([row])
+
+            if os.path.exists(self._filepath):
+                df_new.to_csv(self._filepath, mode='a', header=False, index=False)
+            else:
+                df_new.to_csv(self._filepath, mode='w', header=True, index=False)
+
+        except Exception as e:
+            raise IOError(f"Failed to save response: {e}")
+```
+## Testing
+Testing was approached at two levels. Unit tests were written using pytest to validate the pure functions in validation.py in isolation. A TDD approach was followed - initial test runs produced failures which were then used to identify and fix bugs in the validation logic. Manual testing was carried out to cover the full user journey and GUI behaviour, as these aspects cannot be tested through automated unit tests alone. Finally, integration testing confirmed the end-to-end flow from form submission through to CSV export worked as expected.
+
+![Failing Test](assets/test_fail_validate_numeric.png)
+*Figure 2: validate_numeric test failing before fix*
+
+![Passing Test](assets/test_pass_validate_numeric.png)
+*Figure 3: validate_numeric all tests passing after fix*
+
+![Failing Test](assets/test_fail_validate_text.png)
+*Figure 4: validate_text test failing before fix*
+
+![Passing Test](assets/test_pass_validate_text.png)
+*Figure 5: validate_text all tests passing after fix*
+
+![All Tests Passing](assets/all_test_pass.png)
+*Figure 6: Full test suite passing*
+
+### Manual Test Results
+
+| Test ID | Description | Input | Expected Result | Actual Result | Pass/Fail |
+|---------|-------------|-------|-----------------|---------------|-----------|
+| MT01 | App launches without errors | None | Welcome screen displayed | Welcome screen displayed | Pass |
+| MT02 | Empty case reference blocked | Leave blank, click Begin | Error message shown | Error message shown | Pass |
+| MT03 | Invalid date format blocked | Enter "11/23/24" | Error message shown | Error message shown | Pass |
+| MT04 | Valid welcome form progresses | Valid inputs | Intake screen shown | Intake screen shown | Pass |
+| MT05 | Empty question blocked | Leave blank, click Review | Error message shown | Error message shown | Pass |
+| MT06 | Invalid numeric input blocked | Enter "abc" for years | Error message shown | Error message shown | Pass |
+| MT07 | Invalid yes/no blocked | Enter "maybe" | Error message shown | Error message shown | Pass |
+| MT08 | Valid intake form progresses | Valid answers | Review screen shown | Review screen shown | Pass |
+| MT09 | Review screen shows answers | Complete intake | All answers displayed | All answers displayed | Pass |
+| MT10 | Submit saves to CSV | Click Submit | CSV file created | CSV file created | Pass |
+| MT11 | Export CSV downloads file | Click Export CSV | File downloads | File downloads | Pass |
+| MT12 | New intake resets session | Click Start New Intake | Welcome screen, empty fields | Welcome screen, empty fields | Pass |
+
+### User Documentation
+
+The Leigh Day Claimant Intake Tool is designed to be used by legal staff during field interviews. No technical knowledge is required to operate the application.
+
+**Starting the application**
+Once the application has been launched, it will open in your web browser automatically. You will be presented with the welcome screen.
+
+**Step 1 - Enter session details**
+Enter the case reference number, your name as the interviewing associate, and the interview date in DD/MM/YYYY format. All three fields are required. If any field is left empty or the date is in the wrong format, an error message will appear and you will not be able to proceed.
+
+**Step 2 - Complete the questionnaire**
+You will be presented with a series of questions about the claimant. Each question has an expected format - some require a number, others a date, and some require yes or no. If your response does not meet the expected format an error message will appear below the field.
+
+**Step 3 - Review your responses**
+Once all questions are answered click Review Responses. You will see a summary of all your answers. Check these carefully before proceeding as this is your last opportunity to review the data.
+
+**Step 4 - Submit and export**
+Click Submit to save the responses. You will then see a confirmation screen. Click Export CSV to download the responses file. This file can be opened in Excel and shared with the data team.
+
+**Starting a new session**
+Click Start New Intake to reset the form and begin a new claimant interview.
+
+### Technical Documentation
+
+**Requirements**
+- Python 3.11+
+- pip
+
+**Installation**
+
+```bash
+git clone https://github.com/SIslam-rgb/leighday-intake-tool
+cd leighday-intake-tool
+pip install streamlit pandas pytest
 ```
 
+**Running the application**
 
+```bash
+streamlit run app.py
+```
 
+**Running the tests**
+
+```bash
+pytest test_validation.py -v
+```
+
+**Output**
+Responses are saved to `responses.csv` in the project root directory.
 
