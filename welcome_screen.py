@@ -20,7 +20,7 @@ def welcome_screen() -> None:
     st.divider()
 
     if st.button("Begin Questionnaire"):
-        if not validate_text(case_ref):
+        if not (case_ref):
             st.error("Please enter a case reference number.")
         elif not validate_text(associate_name):
             st.error("Please enter the interviewing associate name.")
