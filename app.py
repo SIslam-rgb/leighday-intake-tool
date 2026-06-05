@@ -13,7 +13,7 @@ def init_state() -> None:
     """
 
     st.session_state.setdefault("screen", "welcome")
-    
+
     #Session metadata i.e. administartive data
     st.session_state.setdefault("case_ref","")
     st.session_state.setdefault("associate_name","")
