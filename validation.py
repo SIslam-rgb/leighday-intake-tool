@@ -4,7 +4,7 @@ def validate_text(value: str) -> bool:
     """
     Validate that a value is non-empty text.
     """
-    return len(value.strip()) > 0
+    return len(value.strip()) > 0 and all(value.isalpha())
 
 def validate_numeric(value: str) -> bool:
     """Validate that a value is a positive number."""

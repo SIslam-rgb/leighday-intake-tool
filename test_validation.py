@@ -16,7 +16,7 @@ def test_validate_text_whitespace_only():
     assert validate_text("   ") == False
 
 def test_validate_text_numbers_as_text():
-    assert validate_text("123") == True
+    assert validate_text("123") == False
 
 
 # validate_numeric

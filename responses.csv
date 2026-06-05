@@ -1,2 +1,4 @@
 timestamp,case_ref,associate_name,interview_date,What is the claimant's full name?,What is the claimant's home village or region?,How many years were you employed at the site?,What was the date of the first incident? (DD/MM/YYYY),Were you provided with any protective equipment? (yes/no)
 05/06/2026 22:05,4543,3,12/08/2024,john,luton,2,12/08/2003,no
+05/06/2026 22:34,124352,John,11/12/2003,2,luton,2,12/08/2003,yes
+05/06/2026 22:36,12345678,6,11/12/2024,3,3,2,11/12/2024,yes
