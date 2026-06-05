@@ -1,3 +1,5 @@
+
+
 import streamlit as st
 from validation import validate_date
 from validation import validate_text
@@ -30,4 +32,6 @@ def welcome_screen() -> None:
             st.session_state["interview_date"] = interview_date
             st.session_state["screen"] = "intake"
             st.rerun()
+    
+    
 
