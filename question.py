@@ -1,3 +1,4 @@
+from validation import validate_text, validate_numeric, validate_date, validate_yes_no
 """
 Create a blue print for questions
 """
@@ -30,3 +31,36 @@ class Question:
     def required(self) -> bool:
         """Return whether the question is required."""
         return self._required
+    
+class TextQuestion(Question):
+    """A question that expects a plain text response."""
+    def __init__(self, label: str, required: bool = True) -> None:
+        super().__init__(label, "text", required)
+
+    def validate(self, value: str) -> bool:
+        return validate_text(value)
+    
+class NumericQuestion(Question):
+    """A question that expects a positive number response."""
+    def __init__(self, label: str, required: bool = True) -> None:
+        super().__init__(label, "numeric", required)
+
+    def validate(self, value: str) -> bool:
+        return validate_numeric(value)
+
+class DateQuestion(Question):
+    """A question that expects a date response d/m/y."""
+    def __init__(self, label: str, required: bool = True) -> None:
+        super().__init__(label, "date", required)
+
+    def validate(self, value: str) -> bool:
+        return validate_date(value)
+    
+class YesNoQuestion(Question):
+    """A question that expects a yes no."""
+    def __init__(self, label: str, required: bool = True) -> None:
+        super().__init__(label, "yes_no", required)
+
+    def validate(self, value: str) -> bool:
+        return validate_yes_no(value)
+    
